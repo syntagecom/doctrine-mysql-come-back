@@ -1,37 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="5.8.0@9cf4f60a333f779ad3bc704a555920e81d4fdcda">
+<files psalm-version="5.24.0@462c80e31c34e58cc4f750c656be3927e80e550e">
   <file src="src/Statement.php">
-    <DeprecatedMethod>
-      <code>getWrappedConnection</code>
-    </DeprecatedMethod>
-    <MissingParamType>
-      <code>$callable</code>
-      <code>$params</code>
-    </MissingParamType>
-    <MissingReturnType>
-      <code>executeWithRetry</code>
-    </MissingReturnType>
-    <MixedArgument>
-      <code>$callable</code>
-    </MixedArgument>
-    <MixedInferredReturnType>
-      <code>Result</code>
-      <code>int</code>
-    </MixedInferredReturnType>
-    <MixedReturnStatement>
-      <code><![CDATA[$this->executeWithRetry([parent::class, 'executeQuery'], $params)]]></code>
-      <code><![CDATA[$this->executeWithRetry([parent::class, 'executeStatement'], $params)]]></code>
-    </MixedReturnStatement>
-  </file>
-  <file src="tests/functional/AbstractFunctionalTestCase.php">
-    <DeprecatedMethod>
-      <code>fetch</code>
-    </DeprecatedMethod>
-    <MixedAssignment>
-      <code>$id</code>
-    </MixedAssignment>
-    <MixedOperand>
-      <code>$id</code>
-    </MixedOperand>
+    <InvalidArgument>
+      <code><![CDATA[[parent::class, 'executeQuery']]]></code>
+      <code><![CDATA[[parent::class, 'executeQuery']]]></code>
+      <code><![CDATA[[parent::class, 'executeStatement']]]></code>
+      <code><![CDATA[[parent::class, 'executeStatement']]]></code>
+    </InvalidArgument>
+    <UndefinedMethod>
+      <code><![CDATA[canTryAgain]]></code>
+      <code><![CDATA[increaseAttemptCount]]></code>
+    </UndefinedMethod>
   </file>
 </files>
