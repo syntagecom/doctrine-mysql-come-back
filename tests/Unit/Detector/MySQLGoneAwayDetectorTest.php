@@ -7,8 +7,6 @@ use Facile\DoctrineMySQLComeBack\Tests\Unit\BaseUnitTestCase;
 
 class MySQLGoneAwayDetectorTest extends BaseUnitTestCase
 {
-    private const RETRYABLE_ERROR = 'Lost connection to MySQL server during query is an error not retryable on UPDATE queries';
-
     private const RETRYABLE_ERROR_OUTSIDE_UPDATE = 'Lost connection to MySQL server during query is an error not retryable on UPDATE queries';
 
     private const RETRYABLE_ERROR_ON_SENDING_QUERY = 'Warning: Error while sending QUERY packet. PID=34';
@@ -60,7 +58,7 @@ class MySQLGoneAwayDetectorTest extends BaseUnitTestCase
     /**
      * @return array{string, bool}[]
      */
-    public function isUpdateQueryDataProvider(): array
+    public static function isUpdateQueryDataProvider(): array
     {
         return [
             ['UPDATE ', true],
@@ -82,7 +80,7 @@ class MySQLGoneAwayDetectorTest extends BaseUnitTestCase
     /**
      * @return array{string}[]
      */
-    public function savepointDataProvider(): array
+    public static function savepointDataProvider(): array
     {
         return [
             ['SAVEPOINT foo'],
@@ -95,7 +93,7 @@ class MySQLGoneAwayDetectorTest extends BaseUnitTestCase
     /**
      * @return array{0: string, 1: bool, 2: bool}[]
      */
-    public function isGoneAwayExceptionDataProvider(): array
+    public static function isGoneAwayExceptionDataProvider(): array
     {
         return [
             [self::RETRYABLE_ERROR_ON_SERVER_GONE, true, true],

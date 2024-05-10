@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Facile\DoctrineMySQLComeBack\Tests\Functional;
 
+use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\PDO\MySQL\Driver as PDODriver;
 use Doctrine\DBAL\Exception;
@@ -238,7 +239,7 @@ class ConnectionTraitTest extends AbstractFunctionalTestCase
         $this->assertConnectionCount(1, $connection);
         $this->forceDisconnect($connection);
 
-        if (is_a($driver, PDODriver::class)) {
+        if ($driver instanceof \Doctrine\DBAL\Driver\PDO\MySQL\Driver) {
             $this->expectException(\PDOException::class);
             $this->expectExceptionMessage('MySQL server has gone away');
         }
@@ -260,7 +261,7 @@ class ConnectionTraitTest extends AbstractFunctionalTestCase
 
         $connection->beginTransaction();
 
-        if (is_a($driver, PDODriver::class)) {
+        if ($driver instanceof \Doctrine\DBAL\Driver\PDO\MySQL\Driver) {
             $this->assertConnectionCount(2, $connection);
         } else {
             $this->assertConnectionCount(1, $connection);
@@ -318,7 +319,7 @@ class ConnectionTraitTest extends AbstractFunctionalTestCase
 
         $this->forceDisconnect($connection);
 
-        $this->expectException(Exception\ConnectionLost::class);
+        $this->expectException(ConnectionLost::class);
         $statement->executeQuery();
     }
 }

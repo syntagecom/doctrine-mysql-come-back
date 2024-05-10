@@ -63,12 +63,12 @@ abstract class AbstractFunctionalTestCase extends TestCase
     protected function createTestTable(DBALConnection $connection): void
     {
         $connection->executeStatement(
-            <<<'TABLE'
+            <<<'TABLE_WRAP'
                 CREATE TABLE IF NOT EXISTS test (
                     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() 
                 );
-                TABLE
+                TABLE_WRAP
         );
 
         $connection->executeStatement('DELETE FROM `test`;');

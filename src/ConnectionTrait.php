@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
@@ -15,7 +16,7 @@ use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Detector\GoneAwayDetector;
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Detector\MySQLGoneAwayDetector;
 
 /**
- * @psalm-require-extends \Doctrine\DBAL\Connection
+ * @psalm-require-extends Connection
  */
 trait ConnectionTrait
 {
@@ -126,7 +127,7 @@ trait ConnectionTrait
         return parent::connect($connectionName);
     }
 
-    public function close()
+    public function close(): void
     {
         if ($this->getTransactionNestingLevel() > 0) {
             $this->hasBeenClosedWithAnOpenTransaction = true;
@@ -150,9 +151,7 @@ trait ConnectionTrait
      */
     public function executeQuery(string $sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
     {
-        return $this->doWithRetry(function () use ($sql, $params, $types, $qcp): Result {
-            return @parent::executeQuery($sql, $params, $types, $qcp);
-        }, $sql);
+        return $this->doWithRetry(fn(): Result => @parent::executeQuery($sql, $params, $types, $qcp), $sql);
     }
 
     /**
@@ -164,9 +163,7 @@ trait ConnectionTrait
      */
     public function executeStatement($sql, array $params = [], array $types = [])
     {
-        return $this->doWithRetry(function () use ($sql, $params, $types) {
-            return @parent::executeStatement($sql, $params, $types);
-        }, $sql);
+        return $this->doWithRetry(fn() => @parent::executeStatement($sql, $params, $types), $sql);
     }
 
     public function beginTransaction()
@@ -175,9 +172,7 @@ trait ConnectionTrait
             return @parent::beginTransaction();
         }
 
-        return $this->doWithRetry(function (): bool {
-            return parent::beginTransaction();
-        });
+        return $this->doWithRetry(fn(): bool => parent::beginTransaction());
     }
 
     public function canTryAgain(\Throwable $throwable, string $sql = null): bool

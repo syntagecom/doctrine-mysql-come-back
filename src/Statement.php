@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Result;
@@ -16,14 +17,14 @@ use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connections\PrimaryReadReplicaCon
 class Statement extends \Doctrine\DBAL\Statement
 {
     /** @var Connection|PrimaryReadReplicaConnection */
-    protected \Doctrine\DBAL\Connection $retriableConnection;
+    protected Connection $retriableConnection;
 
     private array $boundValues = [];
 
     /**
      * @param Connection|PrimaryReadReplicaConnection $retriableConnection
      */
-    public static function fromDBALStatement(\Doctrine\DBAL\Connection $retriableConnection, \Doctrine\DBAL\Statement $statement): self
+    public static function fromDBALStatement(Connection $retriableConnection, \Doctrine\DBAL\Statement $statement): self
     {
         return new self($retriableConnection, $statement->stmt, $statement->sql);
     }
@@ -31,7 +32,7 @@ class Statement extends \Doctrine\DBAL\Statement
     /**
      * @param Connection|PrimaryReadReplicaConnection $retriableConnection
      */
-    private function __construct(\Doctrine\DBAL\Connection $retriableConnection, Driver\Statement $statement, string $sql)
+    private function __construct(Connection $retriableConnection, Driver\Statement $statement, string $sql)
     {
         /** @psalm-suppress InternalMethod */
         parent::__construct($retriableConnection, $statement, $sql);

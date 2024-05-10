@@ -13,7 +13,7 @@ wait-php:
 	@$(WAIT) php
 
 wait-mysql:
-	@$(WAIT) mysql
+	@$(WAIT) mysql80
 
 # commands
 composer-update: wait-php
