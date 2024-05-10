@@ -13,9 +13,6 @@ class Connection extends \Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection
 {
     public int $connectCount = 0;
 
-    /**
-     * @param string|null $connectionName
-     */
     public function connect(?string $connectionName = null): DriverConnection
     {
         if (! $this->isConnected()) {

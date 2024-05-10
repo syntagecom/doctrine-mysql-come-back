@@ -7,6 +7,7 @@ namespace Facile\DoctrineMySQLComeBack\Doctrine\DBAL;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\ParameterType;
@@ -17,7 +18,7 @@ use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Detector\GoneAwayDetector;
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Detector\MySQLGoneAwayDetector;
 
 /**
- * @psalm-require-extends \Doctrine\DBAL\Connection
+ * @psalm-require-extends Connection
  *
  * @psalm-type WrapperParameterType = string|Type|ParameterType|ArrayParameterType
  * @psalm-type WrapperParameterTypeArray = array<int<0, max>, WrapperParameterType>|array<string, WrapperParameterType>

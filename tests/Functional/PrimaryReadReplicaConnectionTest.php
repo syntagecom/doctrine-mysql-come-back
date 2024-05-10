@@ -27,6 +27,7 @@ class PrimaryReadReplicaConnectionTest extends ConnectionTraitTest
         ]);
 
         $this->assertInstanceOf(PrimaryReadReplicaConnection::class, $connection);
+        $connection->connect();
 
         return $connection;
     }

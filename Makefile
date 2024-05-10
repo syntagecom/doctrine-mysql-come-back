@@ -1,7 +1,7 @@
 WAIT=docker compose up --wait --no-deps
 
 # start targets
-setup: start composer-install
+setup: start composer-update
 
 shell: wait-php
 	@docker compose exec php zsh
@@ -13,11 +13,11 @@ wait-php:
 	@$(WAIT) php
 
 wait-mysql:
-	@$(WAIT) mysql
+	@$(WAIT) mysql80
 
 # commands
-composer-install: wait-php
-	@docker compose exec -T php composer install --ansi
+composer-update: wait-php
+	@docker compose exec -T php composer update --ansi
 
 pre-commit-checks: rector code-style-fix psalm test infection
 
