@@ -32,9 +32,10 @@
         "phpdocumentor/reflection-docblock": ">=4.0.1",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpunit/phpunit": "^9.6",
-        "psalm/plugin-phpunit": "^0.18.4",
+        "psalm/plugin-phpunit": "0.18.4",
+        "rector/rector": "^1.0",
         "symfony/phpunit-bridge": "^6.2",
-        "vimeo/psalm": "^5.8.0"
+        "vimeo/psalm": "5.24.0"
     },
     "autoload": {
         "psr-4": {
@@ -58,7 +59,7 @@
     "minimum-stability": "stable",
     "scripts": {
         "test": "phpunit",
-        "phpcs": "php-cs-fixer fix --level=psr2 -v --diff --dry-run src/",
-        "phpcs-fix": "php-cs-fixer fix --level=psr2 -v --diff src/"
+        "phpcs": "php-cs-fixer fix --dry-run --diff",
+        "phpcs-fix": "php-cs-fixer fix --diff"
     }
 }
