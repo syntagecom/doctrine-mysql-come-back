@@ -21,6 +21,7 @@ class PrimaryReadReplicaConnectionTest extends ConnectionTraitTest
 
         $this->assertInstanceOf(PrimaryReadReplicaConnection::class, $connection);
         $connection->setNestTransactionsWithSavepoints($enableSavepoints);
+        $connection->connect();
 
         return $connection;
     }
