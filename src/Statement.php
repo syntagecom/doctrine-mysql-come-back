@@ -11,30 +11,22 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 use Exception;
-use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 
 /**
  * @internal
  */
 class Statement extends \Doctrine\DBAL\Statement
 {
-    /** @var Connection|PrimaryReadReplicaConnection */
     protected Connection $retriableConnection;
 
     /** @var mixed[] */
     private array $boundValues = [];
 
-    /**
-     * @param Connection|PrimaryReadReplicaConnection $retriableConnection
-     */
     public static function fromDBALStatement(Connection $retriableConnection, \Doctrine\DBAL\Statement $statement): self
     {
         return new self($retriableConnection, $statement->stmt, $statement->sql);
     }
 
-    /**
-     * @param Connection|PrimaryReadReplicaConnection $retriableConnection
-     */
     private function __construct(Connection $retriableConnection, Driver\Statement $statement, string $sql)
     {
         /** @psalm-suppress InternalMethod */
