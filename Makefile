@@ -37,6 +37,6 @@ test: wait-php wait-mysql
 	@docker compose exec -T php ./vendor/bin/phpunit --colors=always
 
 infection: wait-php wait-mysql
-	@docker compose exec -e XDEBUG_MODE=coverage -T php ./vendor/bin/infection --show-mutations --ansi
+	@docker compose exec -e XDEBUG_MODE=coverage -T php ./vendor/bin/roave-infection-static-analysis-plugin --show-mutations --ansi
 
 .SILENT:
