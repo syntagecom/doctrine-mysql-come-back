@@ -27,7 +27,7 @@
     },
     "require-dev": {
         "ext-pdo": "*",
-        "facile-it/facile-coding-standard": "^0.5.2",
+        "facile-it/facile-coding-standard": "^1.2.0",
         "infection/infection": "^0.27.8",
         "phpdocumentor/reflection-docblock": ">=4.0.1",
         "phpspec/prophecy-phpunit": "^2.0",

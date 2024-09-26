@@ -61,11 +61,11 @@ abstract class AbstractFunctionalTestCase extends TestCase
     {
         $connection->executeStatement(
             <<<'TABLE_WRAP'
-CREATE TABLE IF NOT EXISTS test (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() 
-);
-TABLE_WRAP
+                CREATE TABLE IF NOT EXISTS test (
+                    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() 
+                );
+                TABLE_WRAP
         );
 
         $connection->executeStatement('DELETE FROM `test`;');
@@ -98,7 +98,7 @@ TABLE_WRAP
             'user' => getenv('MYSQL_USER') !== false ? getenv('MYSQL_USER') : ($GLOBALS['db_user'] ?? 'root'),
             'password' => getenv('MYSQL_PASS') !== false ? getenv('MYSQL_PASS') : ($GLOBALS['db_pass'] ?? ''),
             'host' => getenv('MYSQL_HOST') !== false ? getenv('MYSQL_HOST') : ($GLOBALS['db_host'] ?? 'localhost'),
-            'port' => (int) (getenv('MYSQL_PORT') !== false ? getenv('MYSQL_PORT') : ($GLOBALS['db_port'] ?? 3306)),
+            'port' => (int) (getenv('MYSQL_PORT') !== false ? getenv('MYSQL_PORT') : ($GLOBALS['db_port'] ?? 3_306)),
         ];
 
         if ($values['driver'] !== 'pdo_mysql') {
@@ -114,7 +114,7 @@ TABLE_WRAP
     }
 
     /**
-     * Disconnect other sessions
+     * Disconnect other sessions.
      */
     protected function forceDisconnect(DBALConnection $connection): void
     {

@@ -129,9 +129,6 @@ trait ConnectionTrait
         $this->currentAttempts = 0;
     }
 
-    /**
-     * @param string $connectionName
-     */
     public function connect(?string $connectionName = null): DriverConnection
     {
         $this->hasBeenClosedWithAnOpenTransaction = false;
@@ -159,13 +156,13 @@ trait ConnectionTrait
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                     $params
+     * @param list<mixed>|array<string, mixed> $params
      *
      * @psalm-param WrapperParameterTypeArray $types
      */
     public function executeQuery(string $sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
     {
-        return $this->doWithRetry(fn (): Result => parent::executeQuery($sql, $params, $types, $qcp), $sql);
+        return $this->doWithRetry(fn(): Result => parent::executeQuery($sql, $params, $types, $qcp), $sql);
     }
 
     /**
@@ -179,7 +176,7 @@ trait ConnectionTrait
      */
     public function executeStatement(string $sql, array $params = [], array $types = []): int|string
     {
-        return $this->doWithRetry(fn () => parent::executeStatement($sql, $params, $types), $sql);
+        return $this->doWithRetry(fn() => parent::executeStatement($sql, $params, $types), $sql);
     }
 
     public function beginTransaction(): void
