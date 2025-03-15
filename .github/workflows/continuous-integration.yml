@@ -12,7 +12,7 @@ on:
 jobs:
   phpunit-mysql:
     name: ${{ matrix.job }}${{ matrix.name }} (PHP ${{ matrix.php-version }} / MySQL ${{ matrix.mysql-version }})
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-24.04"
 
     strategy:
       matrix:
@@ -20,6 +20,7 @@ jobs:
           - "8.1"
           - "8.2"
           - "8.3"
+          - "8.4"
         mysql-version:
           - "8.0"
         dependencies:
@@ -34,9 +35,6 @@ jobs:
         include:
           - php-version: "8.2"
             mysql-version: "5.7"
-          - php-version: "8.4"
-            composer-options: "--prefer-dist --ignore-platform-req=php+"
-            mysql-version: "8.0"
           - php-version: "8.3"
             mysql-version: "8.0"
             job: Infection
@@ -71,6 +69,14 @@ jobs:
           ini-values: "zend.assertions=1"
           extensions: "mysqli, pdo_mysql"
 
+      - name: Remove unneeded dependencies
+        if: matrix.php-version == '8.1'
+        run: |-
+          composer remove --dev --no-update \
+            facile-it/facile-coding-standard \
+            psalm/plugin-phpunit \
+            vimeo/psalm
+
       - name: Install dependencies
         uses: ramsey/composer-install@v3
         with:
@@ -93,7 +99,7 @@ jobs:
         if: matrix.job == 'Tests'
 
   quality-checks:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     name: ${{ matrix.name }}
     strategy:
       matrix:
