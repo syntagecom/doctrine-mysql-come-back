@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Facile\DoctrineMySQLComeBack\Tests\Functional;
 
+use Composer\InstalledVersions;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\PDO\MySQL\Driver as PDODriver;
@@ -307,6 +308,10 @@ class ConnectionTraitTest extends AbstractFunctionalTestCase
      */
     private function isDbalBehaviorUniform(): bool
     {
-        return method_exists(Connection::class, 'handleDriverException');
+        return version_compare(
+            InstalledVersions::getPrettyVersion('doctrine/dbal') ?? '1.0.0',
+            '4.2.3',
+            '>='
+        );
     }
 }
