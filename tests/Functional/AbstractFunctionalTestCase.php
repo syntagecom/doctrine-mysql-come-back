@@ -133,7 +133,7 @@ abstract class AbstractFunctionalTestCase extends TestCase
         $ids = $connection->fetchFirstColumn('SELECT CONNECTION_ID()');
 
         foreach ($ids as $id) {
-            $connection2->executeStatement('KILL ' . $id);
+            $connection2->executeStatement(sprintf('KILL %d', $id));
         }
         $connection2->close();
     }

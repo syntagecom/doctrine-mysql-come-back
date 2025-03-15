@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <psalm
     errorLevel="1"
-    resolveFromConfigFile="true"
     cacheDirectory="/tmp/psalm"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
     errorBaseline="psalm-baseline.xml"
+    findUnusedCode="false"
 >
     <projectFiles>
         <directory name="src" />
@@ -16,6 +16,10 @@
         </ignoreFiles>
     </projectFiles>
 
+    <issueHandlers>
+        <ClassMustBeFinal errorLevel="suppress"/>
+        <MissingOverrideAttribute errorLevel="suppress"/>
+    </issueHandlers>
     <plugins>
         <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
     </plugins>
