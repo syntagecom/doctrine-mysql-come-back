@@ -115,7 +115,22 @@ trait ConnectionTrait
         $backoff = (new Backoff())
             ->setMaxAttempts($this->maxReconnectAttempts)
             ->setStrategy(new ConstantStrategy($this->reconnectDelay))
-            ->enableJitter();
+            ->enableJitter()
+            ->setDecider(function (int $attempt, int $maxAttempts, mixed $result, ?\Throwable $exception = null) use ($sql): bool {
+                if ($exception !== null && !$this->canTryAgain(throwable: $exception, sql: $sql)) {
+                    throw $exception;
+                }
+
+                if ($exception !== null && $attempt >= $maxAttempts) {
+                    throw $exception;
+                }
+
+                if ($exception !== null) {
+                    $this->close();
+                }
+
+                return $attempt < $maxAttempts && $exception !== null;
+            });
 
         return $backoff->run($callable);
     }
