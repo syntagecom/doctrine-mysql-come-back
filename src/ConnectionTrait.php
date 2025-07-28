@@ -18,7 +18,7 @@ use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Detector\GoneAwayDetector;
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Detector\MySQLGoneAwayDetector;
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Detector\PostgreSQLGoneAwayDetector;
 use STS\Backoff\Backoff;
-use STS\Backoff\Strategies\ConstantStrategy;
+use STS\Backoff\Strategies\ExponentialStrategy;
 
 /**
  * @psalm-require-extends Connection
@@ -114,10 +114,10 @@ trait ConnectionTrait
     {
         $backoff = (new Backoff())
             ->setMaxAttempts($this->maxReconnectAttempts)
-            ->setStrategy(new ConstantStrategy($this->reconnectDelay))
+            ->setStrategy(new ExponentialStrategy($this->reconnectDelay))
             ->enableJitter()
             ->setDecider(function (int $attempt, int $maxAttempts, mixed $result, ?\Throwable $exception = null) use ($sql): bool {
-                if ($exception !== null && !$this->canTryAgain(throwable: $exception, sql: $sql)) {
+                if ($exception !== null && ! $this->canTryAgain(throwable: $exception, sql: $sql)) {
                     throw $exception;
                 }
 
