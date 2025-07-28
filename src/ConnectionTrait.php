@@ -16,6 +16,9 @@ use Doctrine\DBAL\Statement as DBALStatement;
 use Doctrine\DBAL\Types\Type;
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Detector\GoneAwayDetector;
 use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Detector\MySQLGoneAwayDetector;
+use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Detector\PostgreSQLGoneAwayDetector;
+use STS\Backoff\Backoff;
+use STS\Backoff\Strategies\ConstantStrategy;
 
 /**
  * @psalm-require-extends Connection
@@ -29,7 +32,7 @@ trait ConnectionTrait
 
     protected int $maxReconnectAttempts = 0;
 
-    protected int $currentAttempts = 0;
+    private int $reconnectDelay = 0;
 
     private bool $hasBeenClosedWithAnOpenTransaction = false;
 
@@ -52,7 +55,15 @@ trait ConnectionTrait
             unset($params['driverOptions']['x_reconnect_attempts']);
         }
 
-        $this->goneAwayDetector = new MySQLGoneAwayDetector();
+        if (isset($params['driverOptions']['x_reconnect_delay'])) {
+            $this->reconnectDelay = $this->validateReconnectDelayOption($params['driverOptions']['x_reconnect_delay']);
+            unset($params['driverOptions']['x_reconnect_delay']);
+        }
+        $this->goneAwayDetector = match (true) {
+            is_a($params['driverClass'], Driver\PDO\PgSQL\Driver::class, true) => new PostgreSQLGoneAwayDetector(),
+            is_a($params['driverClass'], Driver\PDO\MySQL\Driver::class, true) => new MySQLGoneAwayDetector(),
+            default => throw new \LogicException('Unsupported driver ' . $driver::class)
+        };
 
         /**
          * @psalm-suppress InternalMethod
@@ -74,6 +85,19 @@ trait ConnectionTrait
         return $attempts;
     }
 
+    private function validateReconnectDelayOption(mixed $delay): int
+    {
+        if (! is_int($delay)) {
+            throw new \InvalidArgumentException('Invalid x_reconnect_delay option: expecting int, got ' . gettype($delay));
+        }
+
+        if ($delay < 0) {
+            throw new \InvalidArgumentException('Invalid x_reconnect_delay option: it must not be negative');
+        }
+
+        return $delay;
+    }
+
     public function setGoneAwayDetector(GoneAwayDetector $goneAwayDetector): void
     {
         $this->goneAwayDetector = $goneAwayDetector;
@@ -88,40 +112,12 @@ trait ConnectionTrait
      */
     private function doWithRetry(callable $callable, ?string $sql = null)
     {
-        try {
-            attempt:
-            $result = $callable();
-        } catch (\Throwable $e) {
-            if (! $this->canTryAgain($e, $sql)) {
-                throw $e;
-            }
+        $backoff = (new Backoff())
+            ->setMaxAttempts($this->maxReconnectAttempts)
+            ->setStrategy(new ConstantStrategy($this->reconnectDelay))
+            ->enableJitter();
 
-            $this->close();
-            $this->increaseAttemptCount();
-
-            goto attempt;
-        }
-
-        $this->resetAttemptCount();
-
-        /** @psalm-suppress PossiblyUndefinedVariable */
-        return $result;
-    }
-
-    /**
-     * @internal
-     */
-    public function increaseAttemptCount(): void
-    {
-        ++$this->currentAttempts;
-    }
-
-    /**
-     * @internal
-     */
-    public function resetAttemptCount(): void
-    {
-        $this->currentAttempts = 0;
+        return $backoff->run($callable);
     }
 
     public function connect(?string $connectionName = null): DriverConnection
@@ -190,10 +186,6 @@ trait ConnectionTrait
     public function canTryAgain(\Throwable $throwable, ?string $sql = null): bool
     {
         if ($this->hasBeenClosedWithAnOpenTransaction && ! $this->currentlyOpeningFirstLevelTransaction) {
-            return false;
-        }
-
-        if ($this->currentAttempts >= $this->maxReconnectAttempts) {
             return false;
         }
 

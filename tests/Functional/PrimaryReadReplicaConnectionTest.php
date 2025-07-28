@@ -11,10 +11,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class PrimaryReadReplicaConnectionTest extends ConnectionTraitTest
 {
-    /**
-     * @param class-string<Driver> $driver
-     */
-    protected function createConnection(string $driver, int $attempts): PrimaryReadReplicaConnection
+    protected function createConnection(string $driver, int $attempts, int $delay): PrimaryReadReplicaConnection
     {
         $connection = DriverManager::getConnection([
             'primary' => $this->getConnectionParams(),
@@ -37,7 +34,7 @@ class PrimaryReadReplicaConnectionTest extends ConnectionTraitTest
      *
      * @return Connection|PrimaryReadReplicaConnection
      */
-    protected function getConnectedConnection(string $driver, int $attempts): DBALConnection
+    protected function getConnectedConnection(string $driver, int $attempts, int $delay = 0): DBALConnection
     {
         $connection = parent::getConnectedConnection($driver, $attempts);
         $this->assertInstanceOf(PrimaryReadReplicaConnection::class, $connection);
@@ -52,7 +49,7 @@ class PrimaryReadReplicaConnectionTest extends ConnectionTraitTest
     #[DataProvider('driverDataProvider')]
     public function testBeginTransactionShouldNotInterfereWhenSwitchingToPrimary(string $driver): void
     {
-        $connection = $this->createConnection($driver, 0);
+        $connection = $this->createConnection($driver, 0, 0);
         $connection->connect();
 
         $this->assertFalse($connection->isConnectedToPrimary());

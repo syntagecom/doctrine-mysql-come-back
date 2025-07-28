@@ -7,14 +7,17 @@ x-mysql-props: &mysql-props
 services:
   mysql57:
     image: mysql:5.7
+    platform: linux/amd64
     <<: *mysql-props
 
   mysql80:
     image: mysql:8.0
+    platform: linux/amd64
     <<: *mysql-props
 
   php:
     image: facile.example.com/php:${PHP_VERSION}
+    platform: linux/amd64
     build:
       context: ./docker
       args:

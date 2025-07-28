@@ -23,7 +23,7 @@ abstract class AbstractFunctionalTestCase extends TestCase
      *
      * @return Connection|PrimaryReadReplicaConnection
      */
-    protected function createConnection(string $driver, int $attempts): DBALConnection
+    protected function createConnection(string $driver, int $attempts, int $delay): DBALConnection
     {
         $connection = DriverManager::getConnection(array_merge(
             $this->getConnectionParams(),
@@ -32,6 +32,7 @@ abstract class AbstractFunctionalTestCase extends TestCase
                 'driverClass' => $driver,
                 'driverOptions' => [
                     'x_reconnect_attempts' => $attempts,
+                    'x_reconnect_delay' => $delay,
                 ],
             ]
         ));
@@ -46,9 +47,9 @@ abstract class AbstractFunctionalTestCase extends TestCase
      *
      * @return Connection|PrimaryReadReplicaConnection
      */
-    protected function getConnectedConnection(string $driver, int $attempts): DBALConnection
+    protected function getConnectedConnection(string $driver, int $attempts, int $delay = 0): DBALConnection
     {
-        $connection = $this->createConnection($driver, $attempts);
+        $connection = $this->createConnection($driver, $attempts, $delay);
         $connection->executeQuery('SELECT 1');
 
         return $connection;
@@ -116,7 +117,7 @@ abstract class AbstractFunctionalTestCase extends TestCase
     /**
      * Disconnect other sessions.
      */
-    protected function forceDisconnect(DBALConnection $connection): void
+    protected function forceDisconnect(DBALConnection $connection, int $delay = 0): void
     {
         $connection2 = DriverManager::getConnection(array_merge(
             $this->getConnectionParams(),
@@ -125,6 +126,7 @@ abstract class AbstractFunctionalTestCase extends TestCase
                 'driverClass' => PDODriver::class,
                 'driverOptions' => [
                     'x_reconnect_attempts' => 0,
+                    'x_reconnect_delay' => $delay,
                 ],
             ]
         ));
