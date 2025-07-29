@@ -54,7 +54,8 @@ $connectionParams = [
     // [doctrine-mysql-come-back] settings
     'wrapperClass' => 'Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection',
     'driverOptions' => [
-        'x_reconnect_attempts' => 3
+        'x_reconnect_attempts' => 3,
+        'x_reconnect_delay' => 1000 // microseconds
     ],
 ];
 
@@ -75,6 +76,8 @@ doctrine:
                 wrapper_class: 'Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection'
                 options:
                     x_reconnect_attempts: 3
+                    # microseconds
+                    x_reconnect_delay: 1000
 ``` 
 
 An example of configuration on Laminas Framework 2projects:
@@ -94,6 +97,7 @@ return [
                     'charset' => 'UTF8',
                     'driverOptions' => [
                         'x_reconnect_attempts' => 9,
+                        'x_reconnect_delay' => 1000 // microseconds
                     ]
                 ],
             ],
@@ -116,7 +120,8 @@ $connectionParams = [
     'primary' => [
         // ...
         'driverOptions' => [
-            'x_reconnect_attempts' => 3
+            'x_reconnect_attempts' => 3,
+            'x_reconnect_delay' => 1000 // microseconds
         ],
     ],   
 ];

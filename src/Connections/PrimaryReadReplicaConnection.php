@@ -21,6 +21,10 @@ class PrimaryReadReplicaConnection extends \Doctrine\DBAL\Connections\PrimaryRea
             $params['driverOptions']['x_reconnect_attempts'] = $this->validateAttemptsOption($params['primary']['driverOptions']['x_reconnect_attempts']);
             unset($params['primary']['driverOptions']['x_reconnect_attempts']);
         }
+        if (isset($params['primary']['driverOptions']['x_reconnect_delay'])) {
+            $params['driverOptions']['x_reconnect_delay'] = $this->validateReconnectDelayOption($params['primary']['driverOptions']['x_reconnect_delay']);
+            unset($params['primary']['driverOptions']['x_reconnect_delay']);
+        }
 
         $this->commonConstructor($params, $driver, $config);
     }

@@ -5,3 +5,5 @@
 /phpunit.xml
 /.*.cache
 .env
+/.idea
+.DS_Store
