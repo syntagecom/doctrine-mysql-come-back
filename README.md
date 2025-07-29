@@ -75,7 +75,7 @@ doctrine:
                 url: '%env(resolve:DATABASE_URL)%'
                 wrapper_class: 'Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection'
                 options:
-                    x_reconnect_attempts: 3,
+                    x_reconnect_attempts: 3
                     # microseconds
                     x_reconnect_delay: 1000
 ``` 
