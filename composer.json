@@ -22,7 +22,7 @@
         }
     ],
     "require": {
-        "php": "^8.4",
+        "php": "^8.1",
         "doctrine/dbal": "^4.0.0",
         "stechstudio/backoff": "^1.6"
     },
