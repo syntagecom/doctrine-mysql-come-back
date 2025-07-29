@@ -61,8 +61,6 @@
     "scripts": {
         "test": "phpunit",
         "phpcs": "php-cs-fixer fix --dry-run --diff",
-        "phpcs-fix": "php-cs-fixer fix --diff",
-        "cs-check": "php-cs-fixer fix --dry-run --diff",
-        "cs-fix": "php-cs-fixer fix --diff"
+        "phpcs-fix": "php-cs-fixer fix --diff"
     }
 }
