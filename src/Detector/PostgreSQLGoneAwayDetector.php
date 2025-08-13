@@ -23,8 +23,13 @@ class PostgreSQLGoneAwayDetector implements GoneAwayDetector
             return false;
         }
 
-        // If exception exposes SQLSTATE, do not retry invalid tx state
-        // @see https://www.postgresql.org/docs/current/errcodes-appendix.html
+         /*
+         * Prefer authoritative SQLSTATE over message heuristics.
+         * SQLSTATE is stable and portable (Appendix A); messages vary by version, locale, and wrappers.
+         * When available, branch on SQLSTATE; only fallback to tight
+         * message needles if SQLSTATE is missing or inconclusive.
+         * @see https://www.postgresql.org/docs/current/errcodes-appendix.html
+         */
         if (method_exists($exception, 'getSQLState')) {
             $state = $exception->getSQLState();
 
@@ -35,12 +40,18 @@ class PostgreSQLGoneAwayDetector implements GoneAwayDetector
                 return false;
             }
 
-            // Retry genuine connection failures (class 08)
+            // Genuine connection failures → allow statement-level retry (caller must still
+            // ensure there is no active tx before actually retrying):
+            // - Class 08*** = connection exception (lost/failed connections)
             if (is_string($state) && str_starts_with($state, '08')) {
                 return true;
             }
 
-            // Retry server shutdown / cannot connect now – transient conditions
+            // Server transient conditions related to shutdown/availability:
+            // - 57P01 = admin_shutdown
+            // - 57P02 = crash_shutdown
+            // - 57P03 = cannot_connect_now
+            // These are typically safe to retry at statement level (again, only outside a tx).
             if (in_array($state, ['57P01', '57P02', '57P03'], true)) {
                 return true;
             }
