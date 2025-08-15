@@ -85,21 +85,23 @@ class Statement extends \Doctrine\DBAL\Statement
      */
     private function executeWithRetry(callable $callable, ...$params)
     {
-        try {
-            attempt:
-            $result = $callable(...$params);
-        } catch (Exception $e) {
-            if (! $this->retriableConnection->canTryAgain($e, $this->sql)) {
-                throw $e;
-            }
+        $parentCall = \Closure::fromCallable($callable);
+        $parentCall->bindTo($this, parent::class);
 
-            $this->retriableConnection->increaseAttemptCount();
-            $this->recreateStatement();
-
-            goto attempt;
-        }
-
-        /** @psalm-suppress PossiblyUndefinedVariable */
-        return $result;
+        // Delegate to the connection’s retry mechanism
+        return $this->retriableConnection->doWithRetry(
+            function () use ($parentCall, $params) {
+                try {
+                    // Invoke the underlying parent method
+                    return $parentCall(...$params);
+                } catch (Exception $e) {
+                    // On failure, recreate the statement and rethrow to trigger retry
+                    $this->recreateStatement();
+                    throw $e;
+                }
+            },
+            $this->sql
+        );
     }
 }
+
