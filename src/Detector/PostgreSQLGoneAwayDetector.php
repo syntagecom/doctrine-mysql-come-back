@@ -8,6 +8,7 @@ class PostgreSQLGoneAwayDetector implements GoneAwayDetector
     protected array $goneAwayExceptions = [
         'SSL connection has been closed unexpectedly',
         'no connection to the server',
+        'canceling statement due to conflict with recovery',
     ];
 
     /** @var string[] */
