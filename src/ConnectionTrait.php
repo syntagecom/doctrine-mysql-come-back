@@ -200,6 +200,46 @@ trait ConnectionTrait
 
     public function canTryAgain(\Throwable $throwable, ?string $sql = null): bool
     {
+        /**
+         * We only retry at statement level for genuine connection/transient errors **outside**
+         * of an active transaction. Two distinct guards are required here, covering different
+         * failure modes:
+         *
+         * - Guard #1 (nesting > 0): runtime view — DBAL currently believes a tx is active.
+         *   In this case we must NOT retry a single statement because:
+         *     (a) If the server-side tx is still alive, a single-statement retry can break
+         *         atomicity/isolation (duplicate effects, reorder writes) and interfere with
+         *         locks/savepoints.
+         *     (b) If the server-side tx has already been lost (network reset/server restart)
+         *         while DBAL still reports nesting > 0, an implicit reconnect would run the
+         *         retried statement outside the original BEGIN (autocommit), causing partial
+         *         writes and/or 25P01/25P02.
+         *   The only exception is the short, controlled window where we are opening the
+         *   first-level transaction (currentlyOpeningFirstLevelTransaction === true): BEGIN
+         *   itself may be retried safely to establish a fresh transactional boundary.
+         */
+        if ($this->getTransactionNestingLevel() > 0 && ! $this->currentlyOpeningFirstLevelTransaction) {
+            return false;
+        }
+
+        /**
+         * - Guard #2 (hasBeenClosedWithAnOpenTransaction): historical view — we **know** this
+         *   connection was explicitly closed while a tx was open (the flag is set in close()
+         *   when nesting > 0). This implies the server-side tx was rolled back and all session
+         *   state (savepoints, locks, SET LOCAL, temp tables) was lost.
+         *
+         *   Even if nesting is now 0 after a reconnect, immediately retrying a single statement
+         *   would run it in autocommit before a fresh BEGIN is established, risking partial
+         *   writes and inconsistent side effects. Therefore we also block statement-level retry
+         *   in this historical condition **until** we are explicitly opening the first-level
+         *   transaction again (currentlyOpeningFirstLevelTransaction === true).
+         *
+         *   In short:
+         *   - Guard #1 protects while DBAL *currently* thinks a tx is active.
+         *   - Guard #2 protects *after* an improper close occurred in the middle of a tx,
+         *     until a clean BEGIN is being (re)opened.
+         *   Both are necessary and complementary.
+         */
         if ($this->hasBeenClosedWithAnOpenTransaction && ! $this->currentlyOpeningFirstLevelTransaction) {
             return false;
         }
